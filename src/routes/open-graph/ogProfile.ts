@@ -27,7 +27,7 @@ async function route(req: Request, res: Response, next: NextFunction) {
   const avatarPath = user.avatar;
 
   const og = makeOpenGraph({
-    url: `https://nerimity.com/app/profile/${userId}`,
+    url: `${env.CLIENT_URL}/app/profile/${userId}`,
     title: `${user.username}'s Profile on Nerimity`,
     description: `${user.profile?.bio || `Browse ${user.username}'s profile on Nerimity.`}`,
     imageUrl: avatarPath ? `${env.NERIMITY_CDN}${avatarPath}` : undefined,

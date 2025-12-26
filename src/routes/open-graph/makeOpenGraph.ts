@@ -26,7 +26,7 @@ export const makeOpenGraph = (opts: Options) => {
   const htmlDescription = `<meta name="description" content="${opts.description}">`;
 
   const largeImage = opts.largeImage ? `<meta name="twitter:card" content="summary_large_image">` : '';
-  const twitterDomain = `<meta name="twitter:domain" content="https://nerimity.com">`;
+  const twitterDomain = `<meta name="twitter:domain" content="${env.CLIENT_URL}">`;
   const twitterUrl = `<meta name="twitter:url" content="${opts.url}">`;
   const twitterDescription = `<meta name="twitter:description" content="${opts.description}">`;
   const twitterTitle = `<meta name="twitter:title" content="${opts.title}">`;

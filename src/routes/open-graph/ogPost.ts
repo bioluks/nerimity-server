@@ -36,7 +36,7 @@ async function route(req: Request, res: Response, next: NextFunction) {
   const attachmentPath = attachment?.path;
 
   const og = makeOpenGraph({
-    url: `https://nerimity.com/app?postId=${postId}`,
+    url: `${env.CLIENT_URL}/app?postId=${postId}`,
     title: `${post.createdBy.username} on Nerimity`,
     description: post.content || '',
     largeImage: true,
