@@ -27,7 +27,7 @@ RUN apk add --no-cache openssl
 # Install production dependencies only
 COPY package.json pnpm-lock.yaml ./
 RUN corepack enable && corepack prepare pnpm@latest --activate
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile --prod && pnpm store prune
 # RUN pnpm add ts-node typescript (Removed, using JS config)
 
 # Copy built artifacts and prisma schema
