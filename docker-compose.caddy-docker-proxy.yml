@@ -1,0 +1,119 @@
+services:
+  postgres:
+    image: postgres:alpine
+    container_name: nerimity_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: nerimity
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nerimity-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    container_name: nerimity_redis
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - nerimity-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    container_name: nerimity_api
+    restart: always
+    command: sh -c "npx prisma migrate deploy && node dist/index.mjs --api"
+    # Ports are commented out because traffic should go through Caddy
+    # ports:
+    #   - "8080:8080"
+    environment:
+      - DEV_MODE=false
+      - APP_NAME=Nerimity
+      # CHANGE THIS to your actual domain
+      - CLIENT_URL=https://nerimity.yourdomain.com
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/nerimity
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - API_PORT=8080
+      - WS_PORT=8081
+      # Secrets (Change these in production!)
+      - JWT_SECRET=change_this_secret
+      - JWT_CONNECTIONS_SECRET=change_this_secret
+      - JWT_WEBHOOK_SECRET=change_this_secret
+      - NERIMITY_CDN_SECRET=change_this_secret
+      - EXTERNAL_EMBED_SECRET=change_this_secret
+      - CONNECTIONS_SECRET=thiskeymustbe32characterslong123
+      # Mailer (Optional)
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM=${SMTP_FROM}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nerimity-network
+      # Uncomment if your Caddy proxy is on a different external network
+      # - caddy_network
+    labels:
+      caddy: nerimity.yourdomain.com
+      caddy.reverse_proxy: "/api/* {{upstreams 8080}}"
+
+  ws:
+    build: .
+    container_name: nerimity_ws
+    restart: always
+    command: node dist/index.mjs --ws
+    # Ports are commented out because traffic should go through Caddy
+    # ports:
+    #   - "8081:8081"
+    environment:
+      - DEV_MODE=false
+      - APP_NAME=Nerimity
+      # CHANGE THIS to your actual domain
+      - CLIENT_URL=https://nerimity.yourdomain.com
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/nerimity
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - API_PORT=8080
+      - WS_PORT=8081
+      - JWT_SECRET=change_this_secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nerimity-network
+      # Uncomment if your Caddy proxy is on a different external network
+      # - caddy_network
+    labels:
+      caddy: nerimity.yourdomain.com
+      caddy.reverse_proxy: "/socket.io/* {{upstreams 8081}}"
+
+networks:
+  nerimity-network:
+    driver: bridge
+  # Uncomment if connecting to an external Caddy network
+  # caddy_network:
+  #   external: true
+
+volumes:
+  postgres_data:
+  redis_data:

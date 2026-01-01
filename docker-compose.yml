@@ -4,9 +4,9 @@ services:
     container_name: nerimity_postgres
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: nerimity
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -37,29 +37,34 @@ services:
     restart: always
     command: sh -c "npx prisma migrate deploy && node dist/index.mjs --api"
     ports:
-      - "8080:8080"
+      - "${API_PORT}:8080"
     environment:
-      - DEV_MODE=false
-      - APP_NAME=Nerimity
-      - CLIENT_URL=http://localhost:3000
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/nerimity
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - DEV_MODE=${DEV_MODE}
+      - APP_NAME=${APP_NAME}
+      - CLIENT_URL=${CLIENT_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
       - API_PORT=8080
       - WS_PORT=8081
-      # Secrets (Change these in production!)
-      - JWT_SECRET=change_this_secret
-      - JWT_CONNECTIONS_SECRET=change_this_secret
-      - JWT_WEBHOOK_SECRET=change_this_secret
-      - NERIMITY_CDN_SECRET=change_this_secret
-      - EXTERNAL_EMBED_SECRET=change_this_secret
-      - CONNECTIONS_SECRET=thiskeymustbe32characterslong123
-      # Mailer (Optional)
+      # Secrets
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_CONNECTIONS_SECRET=${JWT_CONNECTIONS_SECRET}
+      - JWT_WEBHOOK_SECRET=${JWT_WEBHOOK_SECRET}
+      - NERIMITY_CDN_SECRET=${NERIMITY_CDN_SECRET}
+      - EXTERNAL_EMBED_SECRET=${EXTERNAL_EMBED_SECRET}
+      - CONNECTIONS_SECRET=${CONNECTIONS_SECRET}
+      # Mailer
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_PORT=${SMTP_PORT}
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASS=${SMTP_PASS}
       - SMTP_FROM=${SMTP_FROM}
+      # Other
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URL=${GOOGLE_REDIRECT_URL}
+      - TENOR_API_KEY=${TENOR_API_KEY}
     depends_on:
       postgres:
         condition: service_healthy
@@ -74,17 +79,17 @@ services:
     restart: always
     command: node dist/index.mjs --ws
     ports:
-      - "8081:8081"
+      - "${WS_PORT}:8081"
     environment:
-      - DEV_MODE=false
-      - APP_NAME=Nerimity
-      - CLIENT_URL=http://localhost:3000
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/nerimity
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - DEV_MODE=${DEV_MODE}
+      - APP_NAME=${APP_NAME}
+      - CLIENT_URL=${CLIENT_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
       - API_PORT=8080
       - WS_PORT=8081
-      - JWT_SECRET=change_this_secret
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       postgres:
         condition: service_healthy

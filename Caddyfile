@@ -1,0 +1,14 @@
+# Caddyfile Configuration for Nerimity
+# Replace 'chat.example.com' with your actual domain.
+
+chat.example.com {
+    # Proxy API requests to the API container
+    # If Caddy is running in the same Docker network, use 'api:8080'
+    # If Caddy is running on the host, use 'localhost:8080'
+    reverse_proxy /api/* api:8080
+
+    # Proxy WebSocket requests to the WebSocket container
+    # If Caddy is running in the same Docker network, use 'ws:8081'
+    # If Caddy is running on the host, use 'localhost:8081'
+    reverse_proxy /socket.io/* ws:8081
+}
