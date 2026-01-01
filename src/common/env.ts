@@ -5,7 +5,7 @@ import { Log } from './Log';
 
 const origin = (): string | string[] => {
   if (!process.env.ORIGIN) {
-    Log.warn("ORIGIN is not provided in .env. '*' will be used by default.");
+    // Log.warn("ORIGIN is not provided in .env. '*' will be used by default.");
     return '*';
   }
   if (process.env.ORIGIN.startsWith('[')) {
