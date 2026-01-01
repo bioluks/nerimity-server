@@ -11,8 +11,7 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 
 # Generate Prisma client
-# DATABASE_URL is required by prisma.config.ts but value doesn't matter for generation
-RUN DATABASE_URL="postgresql://johndoe:randompassword@localhost:5432/mydb" npx prisma generate
+RUN npx prisma generate
 
 # Build the project
 RUN pnpm run build
@@ -29,10 +28,12 @@ RUN apk add --no-cache openssl
 COPY package.json pnpm-lock.yaml ./
 RUN corepack enable && corepack prepare pnpm@latest --activate
 RUN pnpm install --frozen-lockfile --prod
+# RUN pnpm add ts-node typescript (Removed, using JS config)
 
 # Copy built artifacts and prisma schema
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
+COPY prisma.config.js ./
 
 # Expose ports
 EXPOSE 8080 8081
